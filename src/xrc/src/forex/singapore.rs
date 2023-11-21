@@ -103,7 +103,7 @@ impl IsForex for MonetaryAuthorityOfSingapore {
 mod test {
     use super::*;
 
-    use crate::{forex::Forex, utils::test::load_file};
+    use crate::{forex::Forex, utils::test::load_file, ORALLY_RPC_WRAPPER};
 
     /// The function test if the macro correctly generates the
     /// [core::fmt::Display] trait's implementation for [Forex].
@@ -120,7 +120,7 @@ mod test {
         let timestamp = 1661524016;
         let singapore = MonetaryAuthorityOfSingapore;
         let query_string = singapore.get_url(timestamp);
-        assert_eq!(query_string, "https://eservices.mas.gov.sg/api/action/datastore/search.json?resource_id=95932927-c8bc-4e7a-b484-68a66a24edfe&limit=100&filters[end_of_day]=2022-08-26");
+        assert_eq!(query_string, format!("{}{}", ORALLY_RPC_WRAPPER, "https://eservices.mas.gov.sg/api/action/datastore/search.json?resource_id=95932927-c8bc-4e7a-b484-68a66a24edfe&limit=100&filters[end_of_day]=2022-08-26"));
     }
 
     /// The function tests if the [MonetaryAuthorityOfSingapore] struct returns the correct forex rate.

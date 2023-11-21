@@ -116,7 +116,7 @@ impl IsForex for CentralBankOfNepal {
 mod test {
     use super::*;
 
-    use crate::{forex::Forex, utils::test::load_file};
+    use crate::{forex::Forex, utils::test::load_file, ORALLY_RPC_WRAPPER};
 
     /// The function test if the macro correctly generates the
     /// [core::fmt::Display] trait's implementation for [Forex].
@@ -134,7 +134,7 @@ mod test {
         let forex = CentralBankOfNepal;
         assert_eq!(
             forex.get_url(timestamp),
-            "https://www.nrb.org.np/api/forex/v1/rates?from=2022-08-26&to=2022-08-26&per_page=100&page=1"
+            format!("{}{}", ORALLY_RPC_WRAPPER, "https://www.nrb.org.np/api/forex/v1/rates?from=2022-08-26&to=2022-08-26&per_page=100&page=1")
         );
     }
 

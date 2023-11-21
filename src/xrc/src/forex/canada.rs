@@ -101,7 +101,7 @@ impl IsForex for BankOfCanada {
 mod test {
     use super::*;
 
-    use crate::{forex::Forex, utils::test::load_file};
+    use crate::{forex::Forex, utils::test::load_file, ORALLY_RPC_WRAPPER};
 
     /// The function test if the macro correctly generates the
     /// [core::fmt::Display] trait's implementation for [Forex].
@@ -120,7 +120,7 @@ mod test {
         let query_string = canada.get_url(timestamp);
         assert_eq!(
             query_string,
-            "https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json?start_date=2022-08-26&end_date=2022-08-26"
+            format!("{}{}", ORALLY_RPC_WRAPPER, "https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json?start_date=2022-08-26&end_date=2022-08-26")
         );
     }
 

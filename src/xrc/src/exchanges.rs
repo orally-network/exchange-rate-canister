@@ -6,7 +6,7 @@ use ic_xrc_types::Asset;
 use serde::de::DeserializeOwned;
 
 use crate::api::usd_asset;
-use crate::{usdt_asset, utils, ONE_KIB};
+use crate::{usdt_asset, utils, ONE_KIB, ORALLY_RPC_WRAPPER};
 use crate::{ExtractError, RATE_UNIT};
 use crate::{DAI, USDC, USDT};
 
@@ -197,11 +197,15 @@ trait IsExchange {
     /// * [END_TIME]
     fn get_url(&self, base_asset: &str, quote_asset: &str, timestamp: u64) -> String {
         let timestamp = (timestamp / 60) * 60;
-        self.get_base_url()
-            .replace(BASE_ASSET, &self.format_asset(base_asset))
-            .replace(QUOTE_ASSET, &self.format_asset(quote_asset))
-            .replace(START_TIME, &self.format_start_time(timestamp))
-            .replace(END_TIME, &self.format_end_time(timestamp))
+        format!(
+            "{}{}",
+            ORALLY_RPC_WRAPPER,
+            self.get_base_url()
+                .replace(BASE_ASSET, &self.format_asset(base_asset))
+                .replace(QUOTE_ASSET, &self.format_asset(quote_asset))
+                .replace(START_TIME, &self.format_start_time(timestamp))
+                .replace(END_TIME, &self.format_end_time(timestamp))
+        )
     }
 
     /// The implementation to extract the rate from the response's body.
@@ -518,31 +522,31 @@ mod test {
         let timestamp = 1661524016;
         let binance = Binance;
         let query_string = binance.get_url("btc", "icp", timestamp);
-        assert_eq!(query_string, "https://api.binance.com/api/v3/klines?symbol=BTCICP&interval=1m&startTime=1661523960000&endTime=1661523960000");
+        assert_eq!(query_string, format!("{}{}", ORALLY_RPC_WRAPPER, "https://api.binance.com/api/v3/klines?symbol=BTCICP&interval=1m&startTime=1661523960000&endTime=1661523960000"));
 
         let coinbase = Coinbase;
         let query_string = coinbase.get_url("btc", "icp", timestamp);
-        assert_eq!(query_string, "https://api.pro.coinbase.com/products/BTC-ICP/candles?granularity=60&start=1661523960&end=1661523960");
+        assert_eq!(query_string, format!("{}{}", ORALLY_RPC_WRAPPER, "https://api.pro.coinbase.com/products/BTC-ICP/candles?granularity=60&start=1661523960&end=1661523960"));
 
         let kucoin = KuCoin;
         let query_string = kucoin.get_url("btc", "icp", timestamp);
-        assert_eq!(query_string, "https://api.kucoin.com/api/v1/market/candles?symbol=BTC-ICP&type=1min&startAt=1661523960&endAt=1661523961");
+        assert_eq!(query_string, format!("{}{}", ORALLY_RPC_WRAPPER, "https://api.kucoin.com/api/v1/market/candles?symbol=BTC-ICP&type=1min&startAt=1661523960&endAt=1661523961"));
 
         let okx = Okx;
         let query_string = okx.get_url("btc", "icp", timestamp);
-        assert_eq!(query_string, "https://www.okx.com/api/v5/market/history-candles?instId=BTC-ICP&bar=1m&before=1661523899999&after=1661523960001");
+        assert_eq!(query_string, format!("{}{}", ORALLY_RPC_WRAPPER, "https://www.okx.com/api/v5/market/history-candles?instId=BTC-ICP&bar=1m&before=1661523899999&after=1661523960001"));
 
         let gate_io = GateIo;
         let query_string = gate_io.get_url("btc", "icp", timestamp);
-        assert_eq!(query_string, "https://api.gateio.ws/api/v4/spot/candlesticks?currency_pair=BTC_ICP&interval=1m&from=1661523960&to=1661523960");
+        assert_eq!(query_string, format!("{}{}", ORALLY_RPC_WRAPPER, "https://api.gateio.ws/api/v4/spot/candlesticks?currency_pair=BTC_ICP&interval=1m&from=1661523960&to=1661523960"));
 
         let mexc = Mexc;
         let query_string = mexc.get_url("btc", "icp", timestamp);
-        assert_eq!(query_string, "https://www.mexc.com/open/api/v2/market/kline?symbol=BTC_ICP&interval=1m&start_time=1661523960&limit=1");
+        assert_eq!(query_string, format!("{}{}", ORALLY_RPC_WRAPPER, "https://www.mexc.com/open/api/v2/market/kline?symbol=BTC_ICP&interval=1m&start_time=1661523960&limit=1"));
 
         let poloniex = Poloniex;
         let query_string = poloniex.get_url("btc", "icp", timestamp);
-        assert_eq!(query_string, "https://api.poloniex.com/markets/BTC_ICP/candles?interval=MINUTE_1&startTime=1661523960000&endTime=1661523960001");
+        assert_eq!(query_string, format!("{}{}", ORALLY_RPC_WRAPPER, "https://api.poloniex.com/markets/BTC_ICP/candles?interval=MINUTE_1&startTime=1661523960000&endTime=1661523960001"));
     }
 
     /// The function test if the information about IPv6 support is correct.

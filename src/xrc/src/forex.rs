@@ -23,7 +23,7 @@ use crate::api::usd_asset;
 use crate::utils::integer_sqrt;
 use crate::{
     median, standard_deviation, utils, AllocatedBytes, ExtractError, QueriedExchangeRate,
-    ONE_DAY_SECONDS, ONE_HOUR_SECONDS, ONE_KIB, RATE_UNIT, USD,
+    ONE_DAY_SECONDS, ONE_HOUR_SECONDS, ONE_KIB, ORALLY_RPC_WRAPPER, RATE_UNIT, USD,
 };
 
 /// The IMF SDR weights used to compute the XDR rate.
@@ -693,8 +693,12 @@ trait IsForex {
     /// * [DATE]
     fn get_url(&self, timestamp: u64) -> String {
         let timestamp = (timestamp / ONE_DAY_SECONDS) * ONE_DAY_SECONDS;
-        self.get_base_url()
-            .replace(DATE, &self.format_timestamp(timestamp))
+        format!(
+            "{}{}",
+            ORALLY_RPC_WRAPPER,
+            self.get_base_url()
+                .replace(DATE, &self.format_timestamp(timestamp))
+        )
     }
 
     /// A default implementation to extract the rate from the response's body

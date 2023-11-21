@@ -102,7 +102,7 @@ impl IsForex for BankOfItaly {
 mod test {
     use super::*;
 
-    use crate::{forex::Forex, utils::test::load_file};
+    use crate::{forex::Forex, utils::test::load_file, ORALLY_RPC_WRAPPER};
 
     /// The function test if the macro correctly generates the
     /// [core::fmt::Display] trait's implementation for [Forex].
@@ -120,7 +120,7 @@ mod test {
         let forex = BankOfItaly;
         assert_eq!(
             forex.get_url(timestamp),
-            "https://tassidicambio.bancaditalia.it/terzevalute-wf-web/rest/v1.0/dailyRates?referenceDate=2022-08-26&currencyIsoCode=EUR"
+            format!("{}{}", ORALLY_RPC_WRAPPER, "https://tassidicambio.bancaditalia.it/terzevalute-wf-web/rest/v1.0/dailyRates?referenceDate=2022-08-26&currencyIsoCode=EUR")
         );
     }
 
