@@ -117,7 +117,10 @@ impl IsForex for EuropeanCentralBank {
 
 #[cfg(test)]
 mod test {
-    use crate::{forex::Forex, utils::test::load_file, ORALLY_RPC_WRAPPER};
+    use crate::{
+        forex::Forex,
+        utils::{test::load_file, wrap_url},
+    };
 
     use super::*;
 
@@ -138,10 +141,7 @@ mod test {
         let query_string = ecb.get_url(timestamp);
         assert_eq!(
             query_string,
-            format!(
-                "{}{}",
-                ORALLY_RPC_WRAPPER, "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml"
-            )
+            wrap_url("https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml")
         );
     }
 

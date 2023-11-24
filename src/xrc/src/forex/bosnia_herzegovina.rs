@@ -86,7 +86,10 @@ impl IsForex for CentralBankOfBosniaHerzegovina {
 
 #[cfg(test)]
 mod test {
-    use crate::{forex::Forex, utils::test::load_file, ORALLY_RPC_WRAPPER};
+    use crate::{
+        forex::Forex,
+        utils::{test::load_file, wrap_url},
+    };
 
     use super::*;
 
@@ -107,11 +110,7 @@ mod test {
         let query_string = bosnia.get_url(timestamp);
         assert_eq!(
             query_string,
-            format!(
-                "{}{}",
-                ORALLY_RPC_WRAPPER,
-                "https://www.cbbh.ba/CurrencyExchange/GetJson?date=08-26-2022%2000%3A00%3A00"
-            )
+            wrap_url("https://www.cbbh.ba/CurrencyExchange/GetJson?date=08-26-2022%2000%3A00%3A00")
         );
     }
 

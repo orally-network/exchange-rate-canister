@@ -55,8 +55,6 @@ const RATE_DEVIATION_DIVISOR: u64 = 10;
 
 const LOG_PREFIX: &str = "[xrc]";
 
-const ORALLY_RPC_WRAPPER: &str = "https://rpc.orally.network/?rpc=";
-
 /// The number of cycles needed to use the `xrc` canister.
 pub const XRC_REQUEST_CYCLES_COST: u64 = 1_000_000_000;
 

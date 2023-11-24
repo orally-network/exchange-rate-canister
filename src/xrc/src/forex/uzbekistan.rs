@@ -67,7 +67,10 @@ impl IsForex for CentralBankOfUzbekistan {
 
 #[cfg(test)]
 mod test {
-    use crate::{forex::Forex, utils::test::load_file, ORALLY_RPC_WRAPPER};
+    use crate::{
+        forex::Forex,
+        utils::{test::load_file, wrap_url},
+    };
 
     use super::*;
 
@@ -88,10 +91,7 @@ mod test {
         let query_string = uzbekistan.get_url(timestamp);
         assert_eq!(
             query_string,
-            format!(
-                "{}{}",
-                ORALLY_RPC_WRAPPER, "https://cbu.uz/ru/arkhiv-kursov-valyut/json/all/2022-08-26/"
-            )
+            wrap_url("https://cbu.uz/ru/arkhiv-kursov-valyut/json/all/2022-08-26/")
         );
     }
 

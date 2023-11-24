@@ -5,8 +5,8 @@ use ic_cdk::export::{
 use ic_xrc_types::Asset;
 use serde::de::DeserializeOwned;
 
-use crate::api::usd_asset;
-use crate::{usdt_asset, utils, ONE_KIB, ORALLY_RPC_WRAPPER};
+use crate::{api::usd_asset, utils::wrap_url};
+use crate::{usdt_asset, ONE_KIB};
 use crate::{ExtractError, RATE_UNIT};
 use crate::{DAI, USDC, USDT};
 
@@ -120,7 +120,10 @@ macro_rules! exchanges {
             ///
             /// NOTE: This will be removed when IPv4 support is added to HTTP outcalls.
             pub fn is_available(&self) -> bool {
-                utils::is_ipv4_support_available() || self.supports_ipv6()
+                // utils::is_ipv4_support_available() || self.supports_ipv6()
+
+                // replaced with true because orally's wrapper will always accept IPv6
+                true
             }
         }
     }
@@ -197,14 +200,13 @@ trait IsExchange {
     /// * [END_TIME]
     fn get_url(&self, base_asset: &str, quote_asset: &str, timestamp: u64) -> String {
         let timestamp = (timestamp / 60) * 60;
-        format!(
-            "{}{}",
-            ORALLY_RPC_WRAPPER,
-            self.get_base_url()
+        wrap_url(
+            &self
+                .get_base_url()
                 .replace(BASE_ASSET, &self.format_asset(base_asset))
                 .replace(QUOTE_ASSET, &self.format_asset(quote_asset))
                 .replace(START_TIME, &self.format_start_time(timestamp))
-                .replace(END_TIME, &self.format_end_time(timestamp))
+                .replace(END_TIME, &self.format_end_time(timestamp)),
         )
     }
 
@@ -522,31 +524,31 @@ mod test {
         let timestamp = 1661524016;
         let binance = Binance;
         let query_string = binance.get_url("btc", "icp", timestamp);
-        assert_eq!(query_string, format!("{}{}", ORALLY_RPC_WRAPPER, "https://api.binance.com/api/v3/klines?symbol=BTCICP&interval=1m&startTime=1661523960000&endTime=1661523960000"));
+        assert_eq!(query_string, wrap_url("https://api.binance.com/api/v3/klines?symbol=BTCICP&interval=1m&startTime=1661523960000&endTime=1661523960000"));
 
         let coinbase = Coinbase;
         let query_string = coinbase.get_url("btc", "icp", timestamp);
-        assert_eq!(query_string, format!("{}{}", ORALLY_RPC_WRAPPER, "https://api.pro.coinbase.com/products/BTC-ICP/candles?granularity=60&start=1661523960&end=1661523960"));
+        assert_eq!(query_string, wrap_url("https://api.pro.coinbase.com/products/BTC-ICP/candles?granularity=60&start=1661523960&end=1661523960"));
 
         let kucoin = KuCoin;
         let query_string = kucoin.get_url("btc", "icp", timestamp);
-        assert_eq!(query_string, format!("{}{}", ORALLY_RPC_WRAPPER, "https://api.kucoin.com/api/v1/market/candles?symbol=BTC-ICP&type=1min&startAt=1661523960&endAt=1661523961"));
+        assert_eq!(query_string, wrap_url("https://api.kucoin.com/api/v1/market/candles?symbol=BTC-ICP&type=1min&startAt=1661523960&endAt=1661523961"));
 
         let okx = Okx;
         let query_string = okx.get_url("btc", "icp", timestamp);
-        assert_eq!(query_string, format!("{}{}", ORALLY_RPC_WRAPPER, "https://www.okx.com/api/v5/market/history-candles?instId=BTC-ICP&bar=1m&before=1661523899999&after=1661523960001"));
+        assert_eq!(query_string, wrap_url("https://www.okx.com/api/v5/market/history-candles?instId=BTC-ICP&bar=1m&before=1661523899999&after=1661523960001"));
 
         let gate_io = GateIo;
         let query_string = gate_io.get_url("btc", "icp", timestamp);
-        assert_eq!(query_string, format!("{}{}", ORALLY_RPC_WRAPPER, "https://api.gateio.ws/api/v4/spot/candlesticks?currency_pair=BTC_ICP&interval=1m&from=1661523960&to=1661523960"));
+        assert_eq!(query_string, wrap_url("https://api.gateio.ws/api/v4/spot/candlesticks?currency_pair=BTC_ICP&interval=1m&from=1661523960&to=1661523960"));
 
         let mexc = Mexc;
         let query_string = mexc.get_url("btc", "icp", timestamp);
-        assert_eq!(query_string, format!("{}{}", ORALLY_RPC_WRAPPER, "https://www.mexc.com/open/api/v2/market/kline?symbol=BTC_ICP&interval=1m&start_time=1661523960&limit=1"));
+        assert_eq!(query_string, wrap_url("https://www.mexc.com/open/api/v2/market/kline?symbol=BTC_ICP&interval=1m&start_time=1661523960&limit=1"));
 
         let poloniex = Poloniex;
         let query_string = poloniex.get_url("btc", "icp", timestamp);
-        assert_eq!(query_string, format!("{}{}", ORALLY_RPC_WRAPPER, "https://api.poloniex.com/markets/BTC_ICP/candles?interval=MINUTE_1&startTime=1661523960000&endTime=1661523960001"));
+        assert_eq!(query_string, wrap_url("https://api.poloniex.com/markets/BTC_ICP/candles?interval=MINUTE_1&startTime=1661523960000&endTime=1661523960001"));
     }
 
     /// The function test if the information about IPv6 support is correct.
@@ -745,7 +747,7 @@ mod test {
     #[cfg(not(feature = "ipv4-support"))]
     fn is_available() {
         let available_exchanges_count = EXCHANGES.iter().filter(|e| e.is_available()).count();
-        assert_eq!(available_exchanges_count, 3);
+        assert_eq!(available_exchanges_count, 7);
     }
 
     #[test]

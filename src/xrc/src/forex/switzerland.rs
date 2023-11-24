@@ -93,7 +93,10 @@ impl IsForex for SwissFederalOfficeForCustoms {
 mod test {
     use super::*;
 
-    use crate::{forex::Forex, utils::test::load_file, ORALLY_RPC_WRAPPER};
+    use crate::{
+        forex::Forex,
+        utils::{test::load_file, wrap_url},
+    };
 
     /// The function test if the macro correctly generates the
     /// [core::fmt::Display] trait's implementation for [Forex].
@@ -111,11 +114,7 @@ mod test {
         let timestamp = 1661524016;
         assert_eq!(
             forex.get_url(timestamp),
-            format!(
-                "{}{}",
-                ORALLY_RPC_WRAPPER,
-                "https://www.backend-rates.bazg.admin.ch/api/xmldaily?d=20220826&locale=en"
-            )
+            wrap_url(&"https://www.backend-rates.bazg.admin.ch/api/xmldaily?d=20220826&locale=en")
         );
     }
 

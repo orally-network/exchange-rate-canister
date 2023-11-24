@@ -1,8 +1,10 @@
 use crate::{environment::Environment, PRIVILEGED_CANISTER_IDS};
 use ic_cdk::export::Principal;
 use ic_xrc_types::{Asset, GetExchangeRateRequest};
+use urlencoding::encode;
 
 const NANOS_PER_SEC: u64 = 1_000_000_000;
+const ORALLY_RPC_WRAPPER: &str = "https://rpc.orally.network/?rpc=";
 
 /// Gets the current time in seconds.
 pub(crate) fn time_secs() -> u64 {
@@ -167,6 +169,11 @@ pub(crate) fn checked_invert_rate(rate: u128, decimals: u32) -> Option<u64> {
 /// Checks if the canister is supporting IPv4 exchanges and forex sources.
 pub(crate) fn is_ipv4_support_available() -> bool {
     cfg!(feature = "ipv4-support")
+}
+
+// Orally wrapper for urls
+pub(crate) fn wrap_url(url: &str) -> String {
+    format!("{}{}", ORALLY_RPC_WRAPPER, encode(url))
 }
 
 #[cfg(test)]

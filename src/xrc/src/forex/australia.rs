@@ -112,7 +112,10 @@ mod test {
 
     use super::*;
 
-    use crate::{forex::Forex, utils::test::load_file, ORALLY_RPC_WRAPPER};
+    use crate::{
+        forex::Forex,
+        utils::{test::load_file, wrap_url},
+    };
 
     /// The function test if the macro correctly generates the
     /// [core::fmt::Display] trait's implementation for [Forex].
@@ -129,10 +132,7 @@ mod test {
         let forex = ReserveBankOfAustralia;
         assert_eq!(
             forex.get_url(0),
-            format!(
-                "{}{}",
-                ORALLY_RPC_WRAPPER, "https://www.rba.gov.au/rss/rss-cb-exchange-rates.xml"
-            )
+            wrap_url("https://www.rba.gov.au/rss/rss-cb-exchange-rates.xml")
         );
     }
 
