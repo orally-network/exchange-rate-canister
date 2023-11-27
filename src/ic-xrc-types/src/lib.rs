@@ -97,6 +97,8 @@ pub enum ExchangeRateError {
     NotEnoughCycles,
     /// Returned if too many collected rates deviate substantially.
     InconsistentRatesReceived,
+    /// Returned if the caller is not authorized to make the request.
+    NotAllowed,
     /// Until candid bug is fixed, new errors after launch will be placed here.
     Other(OtherError),
 }
