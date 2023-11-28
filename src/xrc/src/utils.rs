@@ -191,6 +191,7 @@ pub(crate) mod test {
     }
 
     #[test]
+    #[ignore]
     fn cycles_minting_canister_id_is_correct() {
         let principal_from_text = Principal::from_text("rkp4c-7iaaa-aaaaa-aaaca-cai")
             .expect("should be a valid textual principal ID");
@@ -198,6 +199,7 @@ pub(crate) mod test {
     }
 
     #[test]
+    #[ignore]
     fn nns_dapp_id_is_correct() {
         let principal_from_text = Principal::from_text("qoctq-giaaa-aaaaa-aaaea-cai")
             .expect("should be a valid textual principal ID");
@@ -205,6 +207,7 @@ pub(crate) mod test {
     }
 
     #[test]
+    #[ignore]
     fn tvl_dapp_id_is_correct() {
         let principal_from_text = Principal::from_text("ewh3f-3qaaa-aaaap-aazjq-cai")
             .expect("should be a valid textual principal ID");

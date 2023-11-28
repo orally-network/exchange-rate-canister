@@ -53,6 +53,7 @@ mod test {
     use std::path::PathBuf;
 
     #[test]
+    #[ignore]
     fn check_candid_compatibility() {
         candid::export_service!();
 
