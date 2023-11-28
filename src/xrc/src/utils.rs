@@ -1,7 +1,8 @@
-use crate::{environment::Environment, PRIVILEGED_CANISTER_IDS};
-use ic_cdk::export::Principal;
+use candid::Principal;
 use ic_xrc_types::{Asset, GetExchangeRateRequest};
 use urlencoding::encode;
+
+use crate::{environment::Environment, PRIVILEGED_CANISTER_IDS};
 
 const NANOS_PER_SEC: u64 = 1_000_000_000;
 const ORALLY_RPC_WRAPPER: &str = "https://rpc.orally.network/?rpc=";

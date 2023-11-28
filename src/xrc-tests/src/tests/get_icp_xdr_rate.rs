@@ -1,5 +1,6 @@
 use ic_xrc_types::{Asset, AssetClass, GetExchangeRateRequest, GetExchangeRateResult};
 
+use crate::tests::{NUM_EXCHANGES, NUM_FOREX_SOURCES};
 use crate::{
     container::{run_scenario, Container},
     mock_responses,
@@ -23,7 +24,7 @@ use crate::{
 ///         i. For all requests in the following test, this should result in a CXDR/USD with the following rates: [ 1336769190, 1336769190 ].
 /// 1. The XRC retrieves the ICP/USDT rates from the mock exchange responses (request 1 responses).
 ///     i. For request 1, this should result in the following rates discovered:
-///          GateIo        Okx         Binance     Mexc        Coinbase    KuCoin      Poloniex         
+///          GateIo        Okx         Bybit     Mexc        Coinbase    KuCoin      Poloniex
 ///          [ 3900000000, 3900000000, 3910000000, 3911000000, 3920000000, 3920000000, 4005000000, ]
 /// 2. The XRC retrieves the stablecoin rates from the mock exchanges.
 ///     i.  For request 1, DAI:  [ 950000000, 990000000, 990000000, 1000000000, 1020000000, 1030927835 ]
@@ -46,15 +47,15 @@ use crate::{
 ///          2867610472, 2867610472, 2868343877, 2868343877, 2874944514, 2874944514, 2874944514, 2874944514,
 ///          2906148666, 2906148666, 2917481962, 2917481962, 2917481962, 2917481962, 2924962685, 2924962685,
 ///          2925710757, 2925710757, 2932443408, 2932443408, 2932443408, 2932443408, 2937283872, 2937283872,
-///          2946951476, 2946951476, 2946951476, 2946951476, 2946951476, 2946951476, 2946951476, 2946951476,
+///          2947149687, 2947149687, 2947149687, 2947149687, 2947149687, 2947149687, 2947149687, 2947149687,
 ///          2954507762, 2954507762, 2954507762, 2954507762, 2955263391, 2955263391, 2955263391, 2955263391,
 ///          2962064048, 2962064048, 2962064048, 2962064048, 2962064048, 2962064048, 2962064048, 2962064048,
 ///          2996029553, 2996029553, 3026292477, 3026292477, 3026292477, 3026292477, 3071033641, 3071033641,
 ///          3071033641, 3071033641, 3078908086, 3078908086, 3079695530, 3079695530, 3086782531, 3086782531,
 ///          3086782531, 3086782531, 3153715315, 3153715315, ]
 /// 6. The XRC returns the median rate and the standard deviation from the ICP/CXDR rates.
-///    i. For request 1, the median rate is  2946951476.
-///    ii. For request 1, the std dev is  81973860.
+///    i. For request 1, the median rate is  2947149687.
+///    ii. For request 1, the std dev is  81979374.
 fn get_icp_xdr_rate() {
     let now_seconds = time::OffsetDateTime::now_utc().unix_timestamp() as u64;
     let request_1_timestamp_seconds = now_seconds / 60 * 60;
@@ -67,13 +68,13 @@ fn get_icp_xdr_rate() {
         "ICP".to_string(),
         request_1_timestamp_seconds,
         |exchange| match exchange {
-            xrc::Exchange::Binance(_) => Some("3.91"),
             xrc::Exchange::Coinbase(_) => Some("3.92"),
             xrc::Exchange::KuCoin(_) => Some("3.92"),
             xrc::Exchange::Okx(_) => Some("3.90"),
             xrc::Exchange::GateIo(_) => Some("3.90"),
             xrc::Exchange::Mexc(_) => Some("3.911"),
             xrc::Exchange::Poloniex(_) => Some("4.005"),
+            xrc::Exchange::Bybit(_) => Some("3.91"),
         },
     )
     // Request 2 mock exchange responses.
@@ -81,13 +82,13 @@ fn get_icp_xdr_rate() {
         "ICP".to_string(),
         request_2_timestamp_seconds,
         |exchange| match exchange {
-            xrc::Exchange::Binance(_) => Some("4.29"),
             xrc::Exchange::Coinbase(_) => Some("4.30"),
             xrc::Exchange::KuCoin(_) => Some("4.30"),
             xrc::Exchange::Okx(_) => Some("4.28"),
             xrc::Exchange::GateIo(_) => Some("4.28"),
             xrc::Exchange::Mexc(_) => Some("4.291"),
             xrc::Exchange::Poloniex(_) => Some("4.38"),
+            xrc::Exchange::Bybit(_) => Some("4.29"),
         },
     ))
     // Request 3 mock exchange responses.
@@ -95,13 +96,13 @@ fn get_icp_xdr_rate() {
         "ICP".to_string(),
         request_3_timestamp_seconds,
         |exchange| match exchange {
-            xrc::Exchange::Binance(_) => Some("5.17"),
             xrc::Exchange::Coinbase(_) => Some("5.18"),
             xrc::Exchange::KuCoin(_) => Some("5.18"),
             xrc::Exchange::Okx(_) => Some("5.16"),
             xrc::Exchange::GateIo(_) => Some("5.16"),
             xrc::Exchange::Mexc(_) => Some("5.171"),
             xrc::Exchange::Poloniex(_) => Some("5.26"),
+            xrc::Exchange::Bybit(_) => Some("5.17"),
         },
     ))
     .chain(mock_responses::stablecoin::build_responses(
@@ -142,12 +143,24 @@ fn get_icp_xdr_rate() {
         assert_eq!(exchange_rate.base_asset, request.base_asset);
         assert_eq!(exchange_rate.quote_asset, request.quote_asset);
         assert_eq!(exchange_rate.timestamp, request_1_timestamp_seconds);
-        assert_eq!(exchange_rate.metadata.base_asset_num_queried_sources, 7);
-        assert_eq!(exchange_rate.metadata.base_asset_num_received_rates, 7);
-        assert_eq!(exchange_rate.metadata.quote_asset_num_queried_sources, 11);
-        assert_eq!(exchange_rate.metadata.quote_asset_num_received_rates, 11);
-        assert_eq!(exchange_rate.metadata.standard_deviation, 81_973_860);
-        assert_eq!(exchange_rate.rate, 2_946_951_476);
+        assert_eq!(
+            exchange_rate.metadata.base_asset_num_queried_sources,
+            NUM_EXCHANGES
+        );
+        assert_eq!(
+            exchange_rate.metadata.base_asset_num_received_rates,
+            NUM_EXCHANGES
+        );
+        assert_eq!(
+            exchange_rate.metadata.quote_asset_num_queried_sources,
+            NUM_FOREX_SOURCES
+        );
+        assert_eq!(
+            exchange_rate.metadata.quote_asset_num_received_rates,
+            NUM_FOREX_SOURCES
+        );
+        assert_eq!(exchange_rate.metadata.standard_deviation, 81_979_374);
+        assert_eq!(exchange_rate.rate, 2_947_149_687);
 
         let request = GetExchangeRateRequest {
             base_asset: Asset {
@@ -168,12 +181,24 @@ fn get_icp_xdr_rate() {
         assert_eq!(exchange_rate.base_asset, request.base_asset);
         assert_eq!(exchange_rate.quote_asset, request.quote_asset);
         assert_eq!(exchange_rate.timestamp, request_2_timestamp_seconds);
-        assert_eq!(exchange_rate.metadata.base_asset_num_queried_sources, 7);
-        assert_eq!(exchange_rate.metadata.base_asset_num_received_rates, 7);
-        assert_eq!(exchange_rate.metadata.quote_asset_num_queried_sources, 11);
-        assert_eq!(exchange_rate.metadata.quote_asset_num_received_rates, 11);
-        assert_eq!(exchange_rate.metadata.standard_deviation, 88_785_978);
-        assert_eq!(exchange_rate.rate, 3_234_090_337);
+        assert_eq!(
+            exchange_rate.metadata.base_asset_num_queried_sources,
+            NUM_EXCHANGES
+        );
+        assert_eq!(
+            exchange_rate.metadata.base_asset_num_received_rates,
+            NUM_EXCHANGES
+        );
+        assert_eq!(
+            exchange_rate.metadata.quote_asset_num_queried_sources,
+            NUM_FOREX_SOURCES
+        );
+        assert_eq!(
+            exchange_rate.metadata.quote_asset_num_received_rates,
+            NUM_FOREX_SOURCES
+        );
+        assert_eq!(exchange_rate.metadata.standard_deviation, 88_791_950);
+        assert_eq!(exchange_rate.rate, 3_234_307_861);
 
         let request = GetExchangeRateRequest {
             base_asset: Asset {
@@ -194,12 +219,24 @@ fn get_icp_xdr_rate() {
         assert_eq!(exchange_rate.base_asset, request.base_asset);
         assert_eq!(exchange_rate.quote_asset, request.quote_asset);
         assert_eq!(exchange_rate.timestamp, request_3_timestamp_seconds);
-        assert_eq!(exchange_rate.metadata.base_asset_num_queried_sources, 7);
-        assert_eq!(exchange_rate.metadata.base_asset_num_received_rates, 7);
-        assert_eq!(exchange_rate.metadata.quote_asset_num_queried_sources, 11);
-        assert_eq!(exchange_rate.metadata.quote_asset_num_received_rates, 11);
-        assert_eq!(exchange_rate.metadata.standard_deviation, 105_677_402);
-        assert_eq!(exchange_rate.rate, 3_899_043_491);
+        assert_eq!(
+            exchange_rate.metadata.base_asset_num_queried_sources,
+            NUM_EXCHANGES
+        );
+        assert_eq!(
+            exchange_rate.metadata.base_asset_num_received_rates,
+            NUM_EXCHANGES
+        );
+        assert_eq!(
+            exchange_rate.metadata.quote_asset_num_queried_sources,
+            NUM_FOREX_SOURCES
+        );
+        assert_eq!(
+            exchange_rate.metadata.quote_asset_num_received_rates,
+            NUM_FOREX_SOURCES
+        );
+        assert_eq!(exchange_rate.metadata.standard_deviation, 105_684_510);
+        assert_eq!(exchange_rate.rate, 3_899_305_739);
 
         Ok(())
     })
