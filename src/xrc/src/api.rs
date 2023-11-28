@@ -12,6 +12,7 @@ use ic_xrc_types::{
 
 use crate::cache::ExchangeRateCache;
 use crate::environment::ChargeCyclesError;
+use crate::errors::unauthorized_error;
 use crate::{
     call_exchange,
     environment::{CanisterEnvironment, ChargeOption, Environment},
@@ -150,7 +151,7 @@ pub async fn get_exchange_rate(request: GetExchangeRateRequest) -> GetExchangeRa
     // Record metrics
     let is_caller_privileged = utils::is_caller_privileged(&caller);
     if !is_caller_privileged {
-        return Err(ExchangeRateError::NotAllowed);
+        return Err(unauthorized_error());
     }
 
     MetricCounter::GetExchangeRateRequest.increment();
@@ -207,9 +208,7 @@ pub async fn get_exchange_rate(request: GetExchangeRateRequest) -> GetExchangeRa
             ExchangeRateError::InconsistentRatesReceived => {
                 MetricCounter::InconsistentRatesErrorsReturned.increment()
             }
-            ExchangeRateError::AnonymousPrincipalNotAllowed
-            | ExchangeRateError::NotAllowed
-            | ExchangeRateError::Other(_) => {}
+            ExchangeRateError::AnonymousPrincipalNotAllowed | ExchangeRateError::Other(_) => {}
         };
     }
 
