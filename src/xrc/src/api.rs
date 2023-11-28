@@ -149,6 +149,9 @@ pub async fn get_exchange_rate(request: GetExchangeRateRequest) -> GetExchangeRa
 
     // Record metrics
     let is_caller_privileged = utils::is_caller_privileged(&caller);
+    if !is_caller_privileged {
+        return Err(ExchangeRateError::NotAllowed);
+    }
 
     MetricCounter::GetExchangeRateRequest.increment();
     if is_caller_privileged {
@@ -204,7 +207,9 @@ pub async fn get_exchange_rate(request: GetExchangeRateRequest) -> GetExchangeRa
             ExchangeRateError::InconsistentRatesReceived => {
                 MetricCounter::InconsistentRatesErrorsReturned.increment()
             }
-            ExchangeRateError::AnonymousPrincipalNotAllowed | ExchangeRateError::Other(_) => {}
+            ExchangeRateError::AnonymousPrincipalNotAllowed
+            | ExchangeRateError::NotAllowed
+            | ExchangeRateError::Other(_) => {}
         };
     }
 

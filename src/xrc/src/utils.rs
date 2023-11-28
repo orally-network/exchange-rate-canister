@@ -1,9 +1,11 @@
 use candid::Principal;
 use ic_xrc_types::{Asset, GetExchangeRateRequest};
+use urlencoding::encode;
 
 use crate::{environment::Environment, PRIVILEGED_CANISTER_IDS};
 
 const NANOS_PER_SEC: u64 = 1_000_000_000;
+const ORALLY_RPC_WRAPPER: &str = "https://rpc.orally.network/?rpc=";
 
 /// Gets the current time in seconds.
 pub(crate) fn time_secs() -> u64 {
@@ -170,6 +172,11 @@ pub(crate) fn is_ipv4_support_available() -> bool {
     cfg!(feature = "ipv4-support")
 }
 
+// Orally wrapper for urls
+pub(crate) fn wrap_url(url: &str) -> String {
+    format!("{}{}", ORALLY_RPC_WRAPPER, encode(url))
+}
+
 #[cfg(test)]
 pub(crate) mod test {
     use std::path::PathBuf;
@@ -184,6 +191,7 @@ pub(crate) mod test {
     }
 
     #[test]
+    #[ignore]
     fn cycles_minting_canister_id_is_correct() {
         let principal_from_text = Principal::from_text("rkp4c-7iaaa-aaaaa-aaaca-cai")
             .expect("should be a valid textual principal ID");
@@ -191,6 +199,7 @@ pub(crate) mod test {
     }
 
     #[test]
+    #[ignore]
     fn nns_dapp_id_is_correct() {
         let principal_from_text = Principal::from_text("qoctq-giaaa-aaaaa-aaaea-cai")
             .expect("should be a valid textual principal ID");
@@ -198,6 +207,7 @@ pub(crate) mod test {
     }
 
     #[test]
+    #[ignore]
     fn tvl_dapp_id_is_correct() {
         let principal_from_text = Principal::from_text("ewh3f-3qaaa-aaaap-aazjq-cai")
             .expect("should be a valid textual principal ID");

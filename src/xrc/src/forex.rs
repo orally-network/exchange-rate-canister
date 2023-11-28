@@ -19,7 +19,7 @@ use std::collections::{HashSet, VecDeque};
 use std::mem::size_of_val;
 
 use crate::api::usd_asset;
-use crate::utils::integer_sqrt;
+use crate::utils::{integer_sqrt, wrap_url};
 use crate::{
     median, standard_deviation, utils, AllocatedBytes, ExtractError, QueriedExchangeRate,
     ONE_DAY_SECONDS, ONE_HOUR_SECONDS, ONE_KIB, RATE_UNIT, USD,
@@ -692,8 +692,11 @@ trait IsForex {
     /// * [DATE]
     fn get_url(&self, timestamp: u64) -> String {
         let timestamp = (timestamp / ONE_DAY_SECONDS) * ONE_DAY_SECONDS;
-        self.get_base_url()
-            .replace(DATE, &self.format_timestamp(timestamp))
+        wrap_url(
+            &self
+                .get_base_url()
+                .replace(DATE, &self.format_timestamp(timestamp)),
+        )
     }
 
     /// A default implementation to extract the rate from the response's body

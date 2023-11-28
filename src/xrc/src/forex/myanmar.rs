@@ -68,7 +68,10 @@ impl IsForex for CentralBankOfMyanmar {
 
 #[cfg(test)]
 mod test {
-    use crate::{forex::Forex, utils::test::load_file};
+    use crate::{
+        forex::Forex,
+        utils::{test::load_file, wrap_url},
+    };
 
     use super::*;
 
@@ -89,7 +92,7 @@ mod test {
         let query_string = myanmar.get_url(timestamp);
         assert_eq!(
             query_string,
-            "https://forex.cbm.gov.mm/api/history/26-08-2022"
+            wrap_url("https://forex.cbm.gov.mm/api/history/26-08-2022")
         );
     }
 

@@ -87,7 +87,10 @@ impl IsForex for CentralBankOfGeorgia {
 mod test {
     use super::*;
 
-    use crate::{forex::Forex, utils::test::load_file};
+    use crate::{
+        forex::Forex,
+        utils::{test::load_file, wrap_url},
+    };
 
     /// The function test if the macro correctly generates the
     /// [core::fmt::Display] trait's implementation for [Forex].
@@ -105,7 +108,9 @@ mod test {
         let forex = CentralBankOfGeorgia;
         assert_eq!(
             forex.get_url(timestamp),
-            "https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/en/json/?date=2022-08-26"
+            wrap_url(
+                "https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/en/json/?date=2022-08-26"
+            )
         );
     }
 
